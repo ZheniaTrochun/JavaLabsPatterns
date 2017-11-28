@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_anttest" default="compile.module.anttest">
+  <dirname property="module.anttest.basedir" file="${ant.file.module_anttest}"/>
+  
+  <property name="module.jdk.home.anttest" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.anttest" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.anttest" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.anttest" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="anttest.output.dir" value="${module.anttest.basedir}/out/production/antTest"/>
+  <property name="anttest.testoutput.dir" value="${module.anttest.basedir}/out/test/antTest"/>
+  
+  <path id="anttest.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="anttest.module.production.classpath">
+    <path refid="${module.jdk.classpath.anttest}"/>
+  </path>
+  
+  <path id="anttest.runtime.production.module.classpath">
+    <pathelement location="${anttest.output.dir}"/>
+  </path>
+  
+  <path id="anttest.module.classpath">
+    <path refid="${module.jdk.classpath.anttest}"/>
+    <pathelement location="${anttest.output.dir}"/>
+  </path>
+  
+  <path id="anttest.runtime.module.classpath">
+    <pathelement location="${anttest.testoutput.dir}"/>
+    <pathelement location="${anttest.output.dir}"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.anttest">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.anttest">
+    <patternset refid="excluded.from.module.anttest"/>
+  </patternset>
+  
+  <path id="anttest.module.sourcepath">
+    <dirset dir="${module.anttest.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.anttest" depends="compile.module.anttest.production,compile.module.anttest.tests" description="Compile module antTest"/>
+  
+  <target name="compile.module.anttest.production" depends="register.custom.compilers" description="Compile module antTest; production classes">
+    <mkdir dir="${anttest.output.dir}"/>
+    <javac2 destdir="${anttest.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.anttest}/javac">
+      <compilerarg line="${compiler.args.anttest}"/>
+      <bootclasspath refid="anttest.module.bootclasspath"/>
+      <classpath refid="anttest.module.production.classpath"/>
+      <src refid="anttest.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.anttest"/>
+    </javac2>
+    
+    <copy todir="${anttest.output.dir}">
+      <fileset dir="${module.anttest.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.anttest.tests" depends="register.custom.compilers,compile.module.anttest.production" description="compile module antTest; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.anttest" description="cleanup module">
+    <delete dir="${anttest.output.dir}"/>
+    <delete dir="${anttest.testoutput.dir}"/>
+  </target>
+</project>
